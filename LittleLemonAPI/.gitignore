@@ -1,0 +1,24 @@
+# Pipenv
+Pipfile
+Pipfile.lock
+
+# Virtual environment
+
+venv/
+
+# Django
+*.pyc
+*.pyo
+*.pyd
+db.sqlite3
+media/
+__pycache__/
+
+# ignore __init__.py files
+__init__.py
+
+# macOS
+.DS_Store
+
+# .vscode
+.vscode/
