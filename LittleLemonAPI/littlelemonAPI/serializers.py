@@ -27,14 +27,14 @@ class CartHelpSerializer(serializers.ModelSerializer):
         model = MenuItem
         fields = ['id', 'title', 'price']
 
-class CartSerializer(serializers.ModelsSerializer):
+class CartSerializer(serializers.ModelSerializer):
     menuItem = CartHelpSerializer()
 
     class Meta():
         model = Cart
         fields = ['menuitem', 'quantity', 'price']
 
-class CArtAddSerializer(serializers.ModelSerializer):
+class CartAddSerializer(serializers.ModelSerializer):
     class Meta():
         model = Cart
         fields = ['menuitem', 'quantity']
@@ -69,7 +69,7 @@ class SingleOrderSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = ['menuitem', 'quantity']
 
-class OderPutSerializer(serializers.ModelSerializer):
+class OrderPutSerializer(serializers.ModelSerializer):
     class Meta():
         model = Order
         fields = ['delivery_crew']

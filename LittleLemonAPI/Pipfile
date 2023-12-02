@@ -7,6 +7,8 @@ name = "pypi"
 django = "*"
 djangorestframework = "*"
 djoser = "*"
+throttle = "*"
+bleach = "*"
 
 [dev-packages]
 
