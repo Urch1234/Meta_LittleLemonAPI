@@ -3,12 +3,23 @@ import math
 from datetime import date
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from django.http import JsonResponse, HttpResponseBadRequest
+from rest_framework.decorators import api_view
+from django.http import JsonResponse, HttpResponseBadRequest, request
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User, Group
 from .paginations import MenuItemListPagination
 from .models import MenuItem, Cart, Order, OrderItem, Category
-from .serializers import MenuItemSerializer, ManagerListSerializer, CartSerializer, CartAddSerializer, OrderSerializer, OrderPutSerializer, CartRemoveSerialzer, CategorySerializer, SingleOrderSerializer
+from .serializers import (
+    MenuItemSerializer,
+    ManagerListSerializer,
+    CartSerializer,
+    CartAddSerializer,
+    OrderSerializer,
+    OrderPutSerializer,
+    CartRemoveSerialzer,
+    CategorySerializer,
+    SingleOrderSerializer,
+)
 
 from .permissions import IsManager, IsDeliveryCrew
 
@@ -16,7 +27,7 @@ from .permissions import IsManager, IsDeliveryCrew
 # Create your views here.
 class MenuItemListView(generics.ListCreateAPIView):
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
-    queryset = MenuItem.Objects.all()
+    queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
     search_fields = ["title", "category__title"]
     ordering_fields = ["price", "category"]
@@ -47,7 +58,7 @@ class MenuItemDetailsView(generics.ListCreateAPIView):
             permission_classes = [IsAuthenticated, IsAdminUser]
         return [permission() for permission in permission_classes]
 
-    def patch(self, requset, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):
         menuitem = MenuItem.objects.get(pk=self.kwargs["pk"])
         menuitem.featured = not menuitem.featured
         menuitem.save()
@@ -55,7 +66,6 @@ class MenuItemDetailsView(generics.ListCreateAPIView):
             status=200,
             data={
                 "message": f"Featured status of {menuitem.title} changed to {menuitem.featured}"
-                
             },
         )
 
@@ -79,7 +89,7 @@ class ManagerListView(generics.ListCreateAPIView):
 
 class ManagersRemoveView(generics.DestroyAPIView):
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
-    queryset = User.objects.filters(groups_name="Managers")
+    queryset = User.objects.filter(groups__name="Managers")
     permission_classes = [IsAuthenticated, IsManager | IsAdminUser]
     serializer_class = ManagerListSerializer
 
@@ -93,7 +103,7 @@ class ManagersRemoveView(generics.DestroyAPIView):
 
 class DeliveryCrewListView(generics.ListCreateAPIView):
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
-    queryset = User.objects.filter(groups_name="Delivery Crew")
+    queryset = User.objects.filter(groups__name="Delivery Crew")
     serializer_class = ManagerListSerializer
     permission_classes = [IsAuthenticated, IsManager | IsAdminUser]
 
@@ -110,7 +120,7 @@ class DeliveryCrewListView(generics.ListCreateAPIView):
 
 class DeliveryCrewRemoveView(generics.DestroyAPIView):
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
-    queryset = User.objects.filter(groups_name="Delivery Crew")
+    queryset = User.objects.filter(groups__name="Delivery Crew")
     serializer_class = ManagerListSerializer
     permission_classes = [IsAuthenticated, IsManager | IsAdminUser]
 
@@ -166,9 +176,9 @@ class CartOperationsView(generics.ListCreateAPIView):
             )
 
 
-class OderOperationsView(generics.ListCreateAPIView):
+class OrderOperationsView(generics.ListCreateAPIView):
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
-    serializer_class = SingleOrderSerializer
+    serializer_class = OrderSerializer
 
     def get_queryset(self, *args, **kwargs):
         if (
@@ -203,18 +213,21 @@ class OderOperationsView(generics.ListCreateAPIView):
             orderitem = OrderItem.objects.create(
                 order=order, menuitem=menuitem, quantity=i["quantity"]
             )
+            orderitem.save()
         cart.delete()
         return JsonResponse(
             status=201,
             data={
                 "message": f"Your order has been placed and your order number is #{order.id}"
-            })
+            },
+        )
 
 
-class SingleOrderView(generics.ListCreateAPIView):
+class SingleOrderView(generics.RetrieveUpdateAPIView, generics.DestroyAPIView):
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     serializer_class = SingleOrderSerializer
 
+    @api_view(['GET', 'POST', "DELETE", "PUT"])
     def get_permissions(self):
         order = Order.objects.get(pk=self.kwargs["pk"])
         if self.request.user == order.user and self.request.method == "GET":

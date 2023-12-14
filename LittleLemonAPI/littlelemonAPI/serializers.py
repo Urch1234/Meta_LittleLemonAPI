@@ -1,75 +1,85 @@
 from rest_framework import serializers
-from .models import MenuItem, Category, Cart, Order, OrderItem
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
+from .models import MenuItem, Category, Cart, Order, OrderItem
 
 
 class MenuItemSerializer(serializers.ModelSerializer):
-
-    class Meta():
+    class Meta:
         model = MenuItem
-        fields = ['id', 'title', 'price', 'featured', 'category']
+        fields = ["id", "title", "price", "featured", "category"]
         depth = 1
 
-class CategorySerializer(serializers.ModelSerializer):
 
-    class Meta():
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
         model = Category
-        fields = ['slug']
+        fields = ['id', 'title', 'slug']
+
 
 class ManagerListSerializer(serializers.ModelSerializer):
-    class Meta():
+    class Meta:
         model = User
-        fields = ['id', 'title', 'price']
+        fields = ["id", "title", "price"]
+
 
 class CartHelpSerializer(serializers.ModelSerializer):
-    class Meta():
+    class Meta:
         model = MenuItem
-        fields = ['id', 'title', 'price']
+        fields = ["id", "title", "price"]
+
 
 class CartSerializer(serializers.ModelSerializer):
     menuItem = CartHelpSerializer()
 
-    class Meta():
+    class Meta:
         model = Cart
-        fields = ['menuitem', 'quantity', 'price']
+        fields = ["menuitem", "quantity", "price"]
+
 
 class CartAddSerializer(serializers.ModelSerializer):
-    class Meta():
+    class Meta:
         model = Cart
-        fields = ['menuitem', 'quantity']
+        fields = ["menuitem", "quantity"]
         extra_kwargs = {
-            'quantity': {'min_value': 1},
+            "quantity": {"min_value": 1},
         }
 
+
 class CartRemoveSerialzer(serializers.ModelSerializer):
-    class Meta():
+    class Meta:
         model = Cart
-        fields = ['menuitem']
+        fields = ["menuitem"]
+
 
 class UserSerializer(serializers.ModelSerializer):
-    class Meta():
+    class Meta:
         models = User
-        fields = ['username']
+        fields = ["id", "username"]
+
 
 class OrderSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    class Meta():
+
+    class Meta:
         model = Order
-        fields = ['id', 'user', 'total', 'status', 'delivery_crew', 'date']
+        fields = ["id", "user", "total", "status", "delivery_crew", "date"]
+
 
 class SingleHelperSerializer(serializers.ModelSerializer):
-    class Meta():
+    class Meta:
         model = MenuItem
-        fields = ['title', 'price']
+        fields = ["title", "price"]
+
 
 class SingleOrderSerializer(serializers.ModelSerializer):
     MenuItem = SingleHelperSerializer()
-    class Meta():
+
+    class Meta:
         model = OrderItem
-        fields = ['menuitem', 'quantity']
+        fields = ["menuitem", "quantity"]
+
 
 class OrderPutSerializer(serializers.ModelSerializer):
-    class Meta():
+    class Meta:
         model = Order
-        fields = ['delivery_crew']
+        fields = ["delivery_crew"]

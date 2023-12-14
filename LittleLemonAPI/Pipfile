@@ -9,6 +9,9 @@ djangorestframework = "*"
 djoser = "*"
 throttle = "*"
 bleach = "*"
+djangorestframework-xml = "*"
+django-filter = "*"
+djangorestframework-simplejwt = "~=5.2.1"
 
 [dev-packages]
 
