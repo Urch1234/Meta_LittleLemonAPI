@@ -58,7 +58,7 @@ class MenuItemDetailsView(generics.ListCreateAPIView):
             permission_classes = [IsAuthenticated, IsAdminUser]
         return [permission() for permission in permission_classes]
 
-    def patch(self, request, *args, **kwargs):
+    def patch(self, _request, *args, **kwargs):
         menuitem = MenuItem.objects.get(pk=self.kwargs["pk"])
         menuitem.featured = not menuitem.featured
         menuitem.save()
@@ -76,8 +76,8 @@ class ManagerListView(generics.ListCreateAPIView):
     serializer_class = ManagerListSerializer
     permission_classes = [IsAuthenticated, IsManager | IsAdminUser]
 
-    def post(self, request, *args, **kwargs):
-        username = request.data["username"]
+    def post(self, _request, *args, **kwargs):
+        username = _request.data["username"]
         if username:
             user = get_object_or_404(User, username=username)
             managers = Group.objects.get(name="Managers")
@@ -93,7 +93,7 @@ class ManagersRemoveView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsManager | IsAdminUser]
     serializer_class = ManagerListSerializer
 
-    def delete(self, request, *args, **kwargs):
+    def delete(self, _request, *args, **kwargs):
         pk = self.kwargs["pk"]
         user = get_object_or_404(User, pk=pk)
         managers = Group.objects.get(name="Managers")
@@ -107,7 +107,7 @@ class DeliveryCrewListView(generics.ListCreateAPIView):
     serializer_class = ManagerListSerializer
     permission_classes = [IsAuthenticated, IsManager | IsAdminUser]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, _request, *args, **kwargs):
         username = request.data["username"]
         if username:
             user = get_object_or_404(User, username=username)
@@ -124,7 +124,7 @@ class DeliveryCrewRemoveView(generics.DestroyAPIView):
     serializer_class = ManagerListSerializer
     permission_classes = [IsAuthenticated, IsManager | IsAdminUser]
 
-    def delete(self, request, *args, **kwargs):
+    def delete(self, _request, *args, **kwargs):
         pk = self.kwargs["pk"]
         user = get_object_or_404(User, pk=pk)
         managers = Group.objects.get(name="Delivery Crew")
